@@ -38,7 +38,3 @@ pub fn to_e1(source: &str) -> ByteBuffer {
 
     buffer
 }
-
-pub fn from_e1(source: &ByteBuffer) -> &str {
-    ""
-}
