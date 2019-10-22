@@ -1,7 +1,4 @@
 extern crate uecp_rs;
-extern crate bytebuffer;
-
-use bytebuffer::*;
 
 #[test]
 fn test_to_e1_simple() {
