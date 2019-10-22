@@ -1,4 +1,3 @@
-extern crate bytebuffer;
 use phf::phf_map;
 use bytebuffer::*;
 use std::str;
