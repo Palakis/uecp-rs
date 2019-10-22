@@ -1,5 +1,8 @@
+use std::convert::Into;
+
+#[derive(Copy, Clone, PartialEq)]
 #[allow(non_camel_case_types)]
-pub enum MEC {
+pub enum ElementCode {
     RDS_PI = 0x01,
     RDS_PS = 0x02,
     RDS_PIN = 0x06,
@@ -44,6 +47,13 @@ pub enum MEC {
     UECP_REQUEST = 0x17
 }
 
+impl Into<u8> for ElementCode {
+    fn into(self: ElementCode) -> u8 {
+        self as u8
+    }
+}
+
+#[derive(Copy, Clone, PartialEq)]
 pub enum PTY {
     None = 0,
     News = 1,
@@ -79,59 +89,79 @@ pub enum PTY {
     Alarm = 31
 }
 
+impl Into<u8> for PTY {
+    fn into(self: PTY) -> u8 {
+        self as u8
+    }
+}
+
+#[derive(Copy, Clone, PartialEq)]
 pub enum ODABufferConfig {
     TransmitOnce,
     AddToCyclic,
     ClearCyclic
 }
 
+#[derive(Copy, Clone, PartialEq)]
 pub enum ODATransmitMode {
     Normal,
     Burst,
     SpinningWheel
 }
 
+#[derive(Copy, Clone, PartialEq)]
 pub enum ODAConfigKind {
     Data,
     ShortMessage
 }
 
-#[allow(non_camel_case_types)]
-pub mod MECRules {
-    use crate::defs::MEC;
+pub mod element_code_rules {
+    use crate::defs::ElementCode;
 
-    const HasMEL: [MEC; 11] = [
-        MEC::RDS_RT,
-        MEC::RDS_AF,
-        MEC::RDS_EON_AF,
-        MEC::ODA_IDENT,
-        MEC::ODA_PRIORITY,
-        MEC::ODA_DATA,
-        MEC::TDC,
-        MEC::TMC,
-        MEC::UECP_REQUEST,
-        MEC::DAB_DL_MESSAGE,
-        MEC::DAB_DL_COMMAND
-    ];
+    pub fn include_length_field(value: &ElementCode) -> bool {
+        static HAS_MEL: &'static [ElementCode] = &[
+            ElementCode::RDS_RT,
+            ElementCode::RDS_AF,
+            ElementCode::RDS_EON_AF,
+            ElementCode::ODA_IDENT,
+            ElementCode::ODA_PRIORITY,
+            ElementCode::ODA_DATA,
+            ElementCode::TDC,
+            ElementCode::TMC,
+            ElementCode::UECP_REQUEST,
+            ElementCode::DAB_DL_MESSAGE,
+            ElementCode::DAB_DL_COMMAND
+        ];
 
-    const HasDSNPSN: [MEC; 13] = [
-        MEC::RDS_PI,
-        MEC::RDS_PS,
-        MEC::RDS_PIN,
-        MEC::RDS_TA_TP,
-        MEC::RDS_MS,
-        MEC::RDS_PTY,
-        MEC::RDS_PTYN,
-        MEC::RDS_RT,
-        MEC::RDS_AF,
-        MEC::RDS_EON_AF,
-        MEC::RDS_SLOW_LABELING,
-        MEC::RDS_LINKAGE_INFO,
-        MEC::ODA_IDENT
-    ];
+        HAS_MEL.contains(value)
+    }
 
-    const ExcludePSN: [MEC; 2] = [
-        MEC::RDS_SLOW_LABELING,
-        MEC::ODA_IDENT
-    ];
+    pub fn include_dsn_psn_fields(value: &ElementCode) -> bool {
+        static HAS_DSN_PSN: &'static [ElementCode] = &[
+            ElementCode::RDS_PI,
+            ElementCode::RDS_PS,
+            ElementCode::RDS_PIN,
+            ElementCode::RDS_TA_TP,
+            ElementCode::RDS_MS,
+            ElementCode::RDS_PTY,
+            ElementCode::RDS_PTYN,
+            ElementCode::RDS_RT,
+            ElementCode::RDS_AF,
+            ElementCode::RDS_EON_AF,
+            ElementCode::RDS_SLOW_LABELING,
+            ElementCode::RDS_LINKAGE_INFO,
+            ElementCode::ODA_IDENT
+        ];
+
+        HAS_DSN_PSN.contains(value)
+    }
+
+    pub fn exclude_psn_field(value: &ElementCode) -> bool {
+        static EXCLUDE_PSN: &'static [ElementCode] = &[
+            ElementCode::RDS_SLOW_LABELING,
+            ElementCode::ODA_IDENT
+        ];
+
+        EXCLUDE_PSN.contains(value)
+    }
 }
