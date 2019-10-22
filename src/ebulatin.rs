@@ -35,6 +35,12 @@ static E1: phf::Map<char, u8> = phf_map! {
 
 pub fn to_e1(source: &str) -> ByteBuffer {
     let mut buffer = ByteBuffer::new();
-
+    for c in source.chars() {
+        let e1Byte: u8 = match E1.get(&c) {
+            Some(x) => *x,
+            None => c as u8
+        };
+        buffer.write_u8(e1Byte);
+    }
     buffer
 }
