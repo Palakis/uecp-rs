@@ -12,7 +12,7 @@ pub struct MessageElement {
 pub struct Frame {
     pub sequence_counter: u8,
     pub site_address: u16,
-    pub encoder_address: u16,
+    pub encoder_address: u8,
     pub elements: Vec<MessageElement>
 }
 
@@ -89,8 +89,8 @@ impl Frame {
         // Calculate the two-bytes ADD field
         let addr_field: u16 = Frame::get_address_field(self.site_address, self.encoder_address)
                                     .unwrap();
-        let addr_first_byte: u8 = (addr_field & 0xFF) as u8;
-        let addr_second_byte: u8 = ((addr_field & 0xFF00) >> 8) as u8;
+        let addr_first_byte: u8 = ((addr_field & 0xFF00) >> 8) as u8;
+        let addr_second_byte: u8 = (addr_field & 0xFF) as u8;
 
         // Start building the UECP frame
         let mut frame = ByteBuffer::new();
@@ -117,7 +117,7 @@ impl Frame {
         Ok(final_frame.to_bytes()) // TODO
     }
 
-    fn get_address_field(site_address: u16, encoder_address: u16) -> Result<u16, &'static str> {
+    pub fn get_address_field(site_address: u16, encoder_address: u8) -> Result<u16, &'static str> {
         if site_address > 1023 {
             return Err("Invalid site address")
         }
@@ -128,7 +128,7 @@ impl Frame {
         
         let mut address: u16;
         address = (site_address & 0x3FF) << 6;
-        address |= encoder_address & 0x3F;
+        address |= (encoder_address & 0x3F) as u16;
 
         Ok(address)
     }

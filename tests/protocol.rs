@@ -14,3 +14,25 @@ fn test_apply_byte_stuffing() {
     let result = Frame::apply_byte_stuffing(&source);
     assert_eq!(result, vec![0x12, 0xFD, 0x00, 0x15, 0xFD, 0x02, 0xAB, 0xFD, 0x01, 0x26]);
 }
+
+#[test]
+fn test_get_address_field() {
+    let site_address: u16 = 341;
+    let encoder_address: u8 = 21;
+    let result = Frame::get_address_field(site_address, encoder_address).unwrap();
+    assert_eq!(result, 0x5555);
+}
+
+#[test]
+fn test_build_pi_frame() {
+    let mut frame = Frame::new();
+    frame.sequence_counter = 12;
+    frame.site_address = 62;
+    frame.encoder_address = 14;
+    frame.elements.push(
+        MessageElement::new(ElementCode::RDS_PI, vec![0xC2, 0x01])
+    );
+
+    let result = frame.into_bytes().unwrap();
+    assert_eq!(result, vec![0xFE, 0x0F, 0x8E, 0x0C, 0x05, 0x01, 0x00, 0x00, 0xC2, 0x01, 0xC7, 0x65, 0xFF]);
+}
