@@ -134,7 +134,12 @@ pub mod element_code_rules {
             ElementCode::TMC |
             ElementCode::UECPRequest |
             ElementCode::DABDynamicLabelMessage |
-            ElementCode::DABDynamicLabelCommand
+            ElementCode::DABDynamicLabelCommand |
+            ElementCode::MakePSNList |
+            ElementCode::PSNToggle |
+            ElementCode::GroupSequence |
+            ElementCode::ExtendedGroupSequence |
+            ElementCode::GroupVariantCodeSequence
             => true,
 
             _ => false
@@ -181,8 +186,19 @@ pub mod element_code_rules {
             ElementCode::OdaBurstMode |
             ElementCode::RTCCorrection |
             ElementCode::RDSPhase |
-            ElementCode::RDSLevel
+            ElementCode::RDSLevel |
+            ElementCode::EncoderAddress |
+            ElementCode::TrafficAnnouncementControl |
+            ElementCode::EonTrafficAnnouncementControl |
+            ElementCode::CommunicationPortMode |
+            ElementCode::CommunicationPortSpeed |
+            ElementCode::CommunicationPortTimeout |
+            ElementCode::UECPAcknowledgement
             => 2,
+
+            ElementCode::SiteAddress |
+            ElementCode::EncoderAccessRights
+            => 3,
 
             ElementCode::OdaSpinningWheel |
             ElementCode::OdaDataACL
