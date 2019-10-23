@@ -55,6 +55,7 @@ pub enum ElementCode {
     CommunicationPortSpeed = 0x3C,
     CommunicationPortTimeout = 0x3D,
 
+    SpecificCommand = 0x2D,
     DABDynamicLabelMessage = 0xAA,
     DABDynamicLabelCommand = 0x48,
 
@@ -133,13 +134,14 @@ pub mod element_code_rules {
             ElementCode::TDC |
             ElementCode::TMC |
             ElementCode::UECPRequest |
-            ElementCode::DABDynamicLabelMessage |
-            ElementCode::DABDynamicLabelCommand |
             ElementCode::MakePSNList |
             ElementCode::PSNToggle |
             ElementCode::GroupSequence |
             ElementCode::ExtendedGroupSequence |
-            ElementCode::GroupVariantCodeSequence
+            ElementCode::GroupVariantCodeSequence |
+            ElementCode::SpecificCommand |
+            ElementCode::DABDynamicLabelMessage |
+            ElementCode::DABDynamicLabelCommand
             => true,
 
             _ => false
