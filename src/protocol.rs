@@ -38,12 +38,12 @@ impl MessageElement {
 
         let element_code = ElementCode::from_u8(buffer.read_u8()).unwrap();
 
-        let mut dsn: u8 = 0;
-        let mut psn: u8 = 0;
+        let mut dataset_number: u8 = 0;
+        let mut program_service_number: u8 = 0;
         if include_dsn_psn_fields(element_code) {
-            dsn = buffer.read_u8();
+            dataset_number = buffer.read_u8();
             if !exclude_psn_field(element_code) {
-                psn = buffer.read_u8();
+                program_service_number = buffer.read_u8();
             }
         }
 
@@ -54,10 +54,10 @@ impl MessageElement {
         let data: Vec<u8> = buffer.read_bytes(buffer.len() - buffer.get_rpos());
 
         MessageElement {
-            element_code: element_code,
-            dataset_number: dsn,
-            program_service_number: psn,
-            data: data
+            element_code,
+            dataset_number,
+            program_service_number,
+            data
         }
     }
 
@@ -135,9 +135,9 @@ impl Frame {
         let message = buffer.read_bytes(message_length);
 
         Ok(Frame {
-            sequence_counter: sequence_counter,
-            site_address: site_address,
-            encoder_address: encoder_address,
+            sequence_counter,
+            site_address,
+            encoder_address,
             elements: Frame::decode_message_field(&message)
         })
     }
