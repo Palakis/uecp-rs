@@ -1,66 +1,65 @@
 #[derive(Debug, Copy, Clone, PartialEq, FromPrimitive, ToPrimitive)]
-#[allow(non_camel_case_types)]
 pub enum ElementCode {
-    RDS_PI = 0x01,
-    RDS_PS = 0x02,
-    RDS_PIN = 0x06,
-    RDS_DI = 0x04,
-    RDS_TA_TP = 0x03,
-    RDS_MS = 0x05,
-    RDS_PTY = 0x07,
-    RDS_PTYN = 0x3E,
-    RDS_RT = 0x0A,
-    RDS_AF = 0x13,
-    RDS_EON_AF = 0x14,
-    RDS_SLOW_LABELING = 0x1A,
-    RDS_LINKAGE_INFO = 0x2E,
+    PI = 0x01,
+    PS = 0x02,
+    PIN = 0x06,
+    DecoderInformation = 0x04,
+    TrafficProgram = 0x03,
+    MusicSpeech = 0x05,
+    ProgramType = 0x07,
+    ProgramTypeName = 0x3E,
+    Radiotext = 0x0A,
+    AF = 0x13,
+    EonAF = 0x14,
+    SlowLabeling = 0x1A,
+    LinkageInfo = 0x2E,
 
-    ODA_CONFIG = 0x40,
-    ODA_IDENT = 0x41,
-    ODA_FREE_FORMAT = 0x42,
-    ODA_PRIORITY = 0x43,
-    ODA_BURST_MODE = 0x44,
-    ODA_SPIN_WHEEL = 0x45,
-    ODA_DATA = 0x46,
-    ODA_DATA_ACL = 0x47,
+    OdaConfig = 0x40,
+    OdaIdent = 0x41,
+    OdaFreeFormat = 0x42,
+    OdaPriority = 0x43,
+    OdaBurstMode = 0x44,
+    OdaSpinningWheel = 0x45,
+    OdaData = 0x46,
+    OdaDataACL = 0x47,
 
     TDC = 0x26,
     EWS = 0x2B,
     IH = 0x25,
     TMC = 0x30,
-    FREE_FORMAT = 0x24,
+    FreeFormat = 0x24,
 
     RTC = 0x0D,
-    RTC_CORRECTION = 0x09,
-    CT_ON_OFF = 0x19,
+    RTCCorrection = 0x09,
+    CTOnOff = 0x19,
 
-    RDS_ON_OFF = 0x1E,
-    RDS_PHASE = 0x22,
-    RDS_LEVEL = 0x00,
+    RDSOnOff = 0x1E,
+    RDSPhase = 0x22,
+    RDSLevel = 0x00,
 
-    SITE_ADDRESS = 0x23,
-    ENCODER_ADDRESS = 0x27,
-    MAKE_PSN_LIST = 0x28,
-    PSN_TOGGLE = 0x0B,
-    EON_ELEMENTS_TOGGLE = 0x3F,
-    COMMUNICATION_MODE = 0x2C,
-    TA_CONTROL = 0x2A,
-    EON_TA_CONTROL = 0x15,
-    REFERENCE_INPUT_SELECT = 0x1D,
-    DATASET_SELECT = 0x1C,
-    GROUP_SEQUENCE = 0x16,
-    EXTENDED_GROUP_SEQUENCE = 0x38,
-    GROUP_VARIANT_CODE_SEQUENCE = 0x29,
-    ENCODER_ACCESS_RIGHTS = 0x3A,
-    COMM_PORT_CONFIG_MODE = 0x3B,
-    COMM_PORT_CONFIG_SPEED = 0x3C,
-    COMM_PORT_CONFIG_TIMEOUT = 0x3D,
+    SiteAddress = 0x23,
+    EncoderAddress = 0x27,
+    MakePSNList = 0x28,
+    PSNToggle = 0x0B,
+    EonElementsToggle = 0x3F,
+    CommunicationMode = 0x2C,
+    TrafficAnnouncementControl = 0x2A,
+    EonTrafficAnnouncementControl = 0x15,
+    ReferenceInputSelect = 0x1D,
+    DatasetSelect = 0x1C,
+    GroupSequence = 0x16,
+    ExtendedGroupSequence = 0x38,
+    GroupVariantCodeSequence = 0x29,
+    EncoderAccessRights = 0x3A,
+    CommunicationPortMode = 0x3B,
+    CommunicationPortSpeed = 0x3C,
+    CommunicationPortTimeout = 0x3D,
 
-    DAB_DL_MESSAGE = 0xAA,
-    DAB_DL_COMMAND = 0x48,
+    DABDynamicLabelMessage = 0xAA,
+    DABDynamicLabelCommand = 0x48,
 
-    UECP_ACK = 0x18,
-    UECP_REQUEST = 0x17
+    UECPAcknowledgement = 0x18,
+    UECPRequest = 0x17
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, FromPrimitive, ToPrimitive)]
@@ -125,17 +124,17 @@ pub mod element_code_rules {
 
     pub fn include_length_field(ec: ElementCode) -> bool {
         match ec {
-            ElementCode::RDS_RT |
-            ElementCode::RDS_AF |
-            ElementCode::RDS_EON_AF |
-            ElementCode::ODA_IDENT |
-            ElementCode::ODA_PRIORITY |
-            ElementCode::ODA_DATA |
+            ElementCode::Radiotext |
+            ElementCode::AF |
+            ElementCode::EonAF |
+            ElementCode::OdaIdent |
+            ElementCode::OdaPriority |
+            ElementCode::OdaData |
             ElementCode::TDC |
             ElementCode::TMC |
-            ElementCode::UECP_REQUEST |
-            ElementCode::DAB_DL_MESSAGE |
-            ElementCode::DAB_DL_COMMAND
+            ElementCode::UECPRequest |
+            ElementCode::DABDynamicLabelMessage |
+            ElementCode::DABDynamicLabelCommand
             => true,
 
             _ => false
@@ -144,19 +143,19 @@ pub mod element_code_rules {
 
     pub fn include_dsn_psn_fields(ec: ElementCode) -> bool {
         match ec {
-            ElementCode::RDS_PI |
-            ElementCode::RDS_PS |
-            ElementCode::RDS_PIN |
-            ElementCode::RDS_TA_TP |
-            ElementCode::RDS_MS |
-            ElementCode::RDS_PTY |
-            ElementCode::RDS_PTYN |
-            ElementCode::RDS_RT |
-            ElementCode::RDS_AF |
-            ElementCode::RDS_EON_AF |
-            ElementCode::RDS_SLOW_LABELING |
-            ElementCode::RDS_LINKAGE_INFO |
-            ElementCode::ODA_IDENT
+            ElementCode::PI |
+            ElementCode::PS |
+            ElementCode::PIN |
+            ElementCode::TrafficProgram |
+            ElementCode::MusicSpeech |
+            ElementCode::ProgramType |
+            ElementCode::ProgramTypeName |
+            ElementCode::Radiotext |
+            ElementCode::AF |
+            ElementCode::EonAF |
+            ElementCode::SlowLabeling |
+            ElementCode::LinkageInfo |
+            ElementCode::OdaIdent
             => true,
 
             _ => false
@@ -165,8 +164,8 @@ pub mod element_code_rules {
 
     pub fn exclude_psn_field(ec: ElementCode) -> bool {
         match ec {
-            ElementCode::RDS_SLOW_LABELING |
-            ElementCode::ODA_IDENT
+            ElementCode::SlowLabeling |
+            ElementCode::OdaIdent
             => true,
 
             _ => false
@@ -175,30 +174,34 @@ pub mod element_code_rules {
 
     pub fn get_fixed_element_length(ec: ElementCode) -> usize {
         match ec {
-            ElementCode::RDS_PI |
-            ElementCode::RDS_PIN |
-            ElementCode::RDS_SLOW_LABELING |
-            ElementCode::RDS_LINKAGE_INFO |
-            ElementCode::ODA_BURST_MODE
+            ElementCode::PI |
+            ElementCode::PIN |
+            ElementCode::SlowLabeling |
+            ElementCode::LinkageInfo |
+            ElementCode::OdaBurstMode |
+            ElementCode::RTCCorrection |
+            ElementCode::RDSPhase |
+            ElementCode::RDSLevel
             => 2,
 
-            ElementCode::ODA_SPIN_WHEEL |
-            ElementCode::ODA_DATA_ACL
+            ElementCode::OdaSpinningWheel |
+            ElementCode::OdaDataACL
             => 4,
             
             ElementCode::EWS
             => 5,
 
             ElementCode::IH |
-            ElementCode::FREE_FORMAT
+            ElementCode::FreeFormat
             => 6,            
 
-            ElementCode::ODA_CONFIG |
-            ElementCode::ODA_FREE_FORMAT
+            ElementCode::OdaConfig |
+            ElementCode::OdaFreeFormat
             => 7,
 
-            ElementCode::RDS_PS |
-            ElementCode::RDS_PTYN
+            ElementCode::PS |
+            ElementCode::ProgramTypeName |
+            ElementCode::RTC
             => 8,
             
             _ => 1
