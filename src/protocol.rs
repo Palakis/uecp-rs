@@ -3,17 +3,17 @@ use crate::defs::element_code_rules::*;
 use bytebuffer::ByteBuffer;
 
 pub struct MessageElement {
-    element_code: ElementCode,
-    dataset_number: u8,
-    program_service_number: u8,
-    data: Vec<u8>
+    pub element_code: ElementCode,
+    pub dataset_number: u8,
+    pub program_service_number: u8,
+    pub data: Vec<u8>
 }
 
 pub struct Frame {
-    sequence_counter: u8,
-    site_address: u16,
-    encoder_address: u16,
-    elements: Vec<MessageElement>
+    pub sequence_counter: u8,
+    pub site_address: u16,
+    pub encoder_address: u16,
+    pub elements: Vec<MessageElement>
 }
 
 impl Default for Frame {
@@ -149,7 +149,7 @@ impl Frame {
         (crc ^ 0xFFFF)
     }
 
-    fn apply_byte_stuffing(data: &[u8]) -> Vec<u8> {
+    pub fn apply_byte_stuffing(data: &[u8]) -> Vec<u8> {
         let mut result: Vec<u8> = vec![];
         
         for c in data {
