@@ -123,51 +123,54 @@ pub mod element_code_rules {
     use num_traits::FromPrimitive;
     use crate::defs::ElementCode;
 
-    pub fn include_length_field(value: &ElementCode) -> bool {
-        static HAS_MEL: &'static [ElementCode] = &[
-            ElementCode::RDS_RT,
-            ElementCode::RDS_AF,
-            ElementCode::RDS_EON_AF,
-            ElementCode::ODA_IDENT,
-            ElementCode::ODA_PRIORITY,
-            ElementCode::ODA_DATA,
-            ElementCode::TDC,
-            ElementCode::TMC,
-            ElementCode::UECP_REQUEST,
-            ElementCode::DAB_DL_MESSAGE,
+    pub fn include_length_field(ec: ElementCode) -> bool {
+        match ec {
+            ElementCode::RDS_RT |
+            ElementCode::RDS_AF |
+            ElementCode::RDS_EON_AF |
+            ElementCode::ODA_IDENT |
+            ElementCode::ODA_PRIORITY |
+            ElementCode::ODA_DATA |
+            ElementCode::TDC |
+            ElementCode::TMC |
+            ElementCode::UECP_REQUEST |
+            ElementCode::DAB_DL_MESSAGE |
             ElementCode::DAB_DL_COMMAND
-        ];
+            => true,
 
-        HAS_MEL.contains(value)
+            _ => false
+        }
     }
 
-    pub fn include_dsn_psn_fields(value: &ElementCode) -> bool {
-        static HAS_DSN_PSN: &'static [ElementCode] = &[
-            ElementCode::RDS_PI,
-            ElementCode::RDS_PS,
-            ElementCode::RDS_PIN,
-            ElementCode::RDS_TA_TP,
-            ElementCode::RDS_MS,
-            ElementCode::RDS_PTY,
-            ElementCode::RDS_PTYN,
-            ElementCode::RDS_RT,
-            ElementCode::RDS_AF,
-            ElementCode::RDS_EON_AF,
-            ElementCode::RDS_SLOW_LABELING,
-            ElementCode::RDS_LINKAGE_INFO,
+    pub fn include_dsn_psn_fields(ec: ElementCode) -> bool {
+        match ec {
+            ElementCode::RDS_PI |
+            ElementCode::RDS_PS |
+            ElementCode::RDS_PIN |
+            ElementCode::RDS_TA_TP |
+            ElementCode::RDS_MS |
+            ElementCode::RDS_PTY |
+            ElementCode::RDS_PTYN |
+            ElementCode::RDS_RT |
+            ElementCode::RDS_AF |
+            ElementCode::RDS_EON_AF |
+            ElementCode::RDS_SLOW_LABELING |
+            ElementCode::RDS_LINKAGE_INFO |
             ElementCode::ODA_IDENT
-        ];
+            => true,
 
-        HAS_DSN_PSN.contains(value)
+            _ => false
+        }
     }
 
-    pub fn exclude_psn_field(value: &ElementCode) -> bool {
-        static EXCLUDE_PSN: &'static [ElementCode] = &[
-            ElementCode::RDS_SLOW_LABELING,
+    pub fn exclude_psn_field(ec: ElementCode) -> bool {
+        match ec {
+            ElementCode::RDS_SLOW_LABELING |
             ElementCode::ODA_IDENT
-        ];
+            => true,
 
-        EXCLUDE_PSN.contains(value)
+            _ => false
+        }
     }
 
     pub fn get_fixed_element_length(ec: ElementCode) -> usize {
@@ -206,15 +209,15 @@ pub mod element_code_rules {
         let mut result: usize = 1;
         
         let element_code = ElementCode::from_u8(bytes[0]).unwrap();
-        if include_dsn_psn_fields(&element_code) {
+        if include_dsn_psn_fields(element_code) {
             result += 1;
             
-            if !exclude_psn_field(&element_code) {
+            if !exclude_psn_field(element_code) {
                 result += 1;
             }
         }
 
-        if include_length_field(&element_code) {
+        if include_length_field(element_code) {
             result += 1 + (bytes[result] as usize);
         } else {
             result += get_fixed_element_length(element_code);

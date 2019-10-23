@@ -40,14 +40,14 @@ impl MessageElement {
 
         let mut dsn: u8 = 0;
         let mut psn: u8 = 0;
-        if include_dsn_psn_fields(&element_code) {
+        if include_dsn_psn_fields(element_code) {
             dsn = buffer.read_u8();
-            if !exclude_psn_field(&element_code) {
+            if !exclude_psn_field(element_code) {
                 psn = buffer.read_u8();
             }
         }
 
-        if include_length_field(&element_code) {
+        if include_length_field(element_code) {
             buffer.read_u8(); // Skip MEL field
         }
 
@@ -71,18 +71,18 @@ impl MessageElement {
         // MEC field
         buffer.write_u8(self.element_code as u8);
 
-        if include_dsn_psn_fields(&self.element_code) {
+        if include_dsn_psn_fields(self.element_code) {
             // DSN field
             buffer.write_u8(self.dataset_number);
 
-            if !exclude_psn_field(&self.element_code) {
+            if !exclude_psn_field(self.element_code) {
                 // PSN field
                 buffer.write_u8(self.program_service_number);
             }
         }
 
         // MEL (length) field
-        if include_length_field(&self.element_code) {
+        if include_length_field(self.element_code) {
             buffer.write_u8(self.data.len() as u8);
         }
 
