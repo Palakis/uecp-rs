@@ -64,3 +64,12 @@ fn test_build_rt_frame() {
         0xFF // Stop
     ]);
 }
+
+#[test]
+fn test_message_element_encode_and_decode() {
+    let source = MessageElement::new(ElementCode::RDS_PI, &[0xAB, 0xCD]);
+    let encoded = source.into_bytes().unwrap();
+    let decoded = MessageElement::from_bytes(&encoded);
+    assert_eq!(decoded.element_code, ElementCode::RDS_PI);
+    assert_eq!(decoded.data, &[0xAB, 0xCD]);
+}

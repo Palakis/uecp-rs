@@ -1,6 +1,7 @@
 use crate::defs::ElementCode;
 use crate::defs::element_code_rules::*;
 use bytebuffer::ByteBuffer;
+use num_traits::FromPrimitive;
 
 pub struct MessageElement {
     pub element_code: ElementCode,
@@ -29,6 +30,34 @@ impl MessageElement {
             dataset_number: 0,
             program_service_number: 0,
             data: data.to_vec()
+        }
+    }
+
+    pub fn from_bytes(bytes: &[u8]) -> MessageElement {
+        let mut buffer = ByteBuffer::from_bytes(bytes);
+
+        let element_code = ElementCode::from_u8(buffer.read_u8()).unwrap();
+
+        let mut dsn: u8 = 0;
+        let mut psn: u8 = 0;
+        if include_dsn_psn_fields(&element_code) {
+            dsn = buffer.read_u8();
+            if !exclude_psn_field(&element_code) {
+                psn = buffer.read_u8();
+            }
+        }
+
+        if include_length_field(&element_code) {
+            buffer.read_u8(); // Skip MEL field
+        }
+
+        let data: Vec<u8> = buffer.read_bytes(buffer.len() - buffer.get_rpos());
+
+        MessageElement {
+            element_code: element_code,
+            dataset_number: dsn,
+            program_service_number: psn,
+            data: data
         }
     }
 
