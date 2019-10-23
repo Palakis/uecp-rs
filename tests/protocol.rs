@@ -16,6 +16,15 @@ fn test_apply_byte_stuffing() {
 }
 
 #[test]
+fn test_revert_byte_stuffing() {
+    let source = vec![0x12, 0xFD, 0x15, 0xFF, 0xAB, 0xFE, 0x26];
+    let stuffed = Frame::apply_byte_stuffing(&source);
+    assert_eq!(stuffed, vec![0x12, 0xFD, 0x00, 0x15, 0xFD, 0x02, 0xAB, 0xFD, 0x01, 0x26]);
+    let result = Frame::revert_byte_stuffing(&stuffed);
+    assert_eq!(result, source);
+}
+
+#[test]
 fn test_get_address_field() {
     let site_address: u16 = 341;
     let encoder_address: u8 = 21;

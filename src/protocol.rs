@@ -104,15 +104,13 @@ impl Frame {
     }
 
     pub fn from_bytes(bytes: &[u8]) -> Result<Frame, &'static str> {
-        let mut buffer = ByteBuffer::from_bytes(bytes);
+        // Remove byte stuffing before passing the bytes to the bytebuffer
+        let last_index = bytes.len() - 1;
+        let unstuffed_bytes = Frame::revert_byte_stuffing(&bytes[1..last_index]); // STA and STP are ignored
+        let mut buffer = ByteBuffer::from_bytes(&unstuffed_bytes);
 
-        // Skip start byte
-        buffer.read_u8();
-
-        // TODO revert byte stuffing
-
-        // Fetch data needed by the CRC computation (after STA and before CRC and STOP)
-        let crc_data = buffer.read_bytes(buffer.len() - 3);
+        // Fetch data needed by the CRC computation (from the beginning to before the CRC field)
+        let crc_data = buffer.read_bytes(buffer.len() - 2);
         let frame_crc = buffer.read_u16();
 
         // Compute CRC
@@ -121,8 +119,8 @@ impl Frame {
             return Err("CRC error - frame likely corrupted");
         }
 
-        // Then come back to where we started (after the start byte)
-        buffer.set_rpos(1);
+        // Then come back to the beginning
+        buffer.set_rpos(0);
 
         let address = buffer.read_u16();
         let site_address: u16 = (address & 0xFFC0) >> 6 as u16;
@@ -130,6 +128,10 @@ impl Frame {
 
         let sequence_counter = buffer.read_u8();
         let message_length = buffer.read_u8() as usize;
+        if message_length > 255 {
+            return Err("Message too large");
+        }
+
         let message = buffer.read_bytes(message_length);
 
         Ok(Frame {
@@ -232,7 +234,38 @@ impl Frame {
         result
     }
 
+    pub fn revert_byte_stuffing(data: &[u8]) -> Vec<u8> {
+        let mut result: Vec<u8> = vec![];
+
+        for (index, c) in data.iter().enumerate() {
+            let current = *c;
+
+            if index > 0 && data[index-1] == 0xFD {
+                continue;
+            }
+
+            if current == 0xFD {
+                result.push(0xFD + data[index+1]);
+            } else {
+                result.push(current);
+            }
+        }
+
+        result
+    }
+
     fn decode_message_field(bytes: &[u8]) -> Vec<MessageElement> {
-        vec![]
+        let mut result: Vec<MessageElement> = vec![];
+
+        let mut buffer = ByteBuffer::from_bytes(&bytes);
+        while buffer.get_rpos() < buffer.len() {
+            // let element_length = buffer.read_u8() as usize;
+            // let element_bytes = buffer.read_bytes(element_length);
+            // result.push(
+            //     MessageElement::from_bytes(&element_bytes)
+            // )
+        }
+
+        result
     }
 }
