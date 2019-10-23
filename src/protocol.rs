@@ -238,12 +238,11 @@ impl Frame {
         let mut result: Vec<u8> = vec![];
 
         for (index, c) in data.iter().enumerate() {
-            let current = *c;
-
             if index > 0 && data[index-1] == 0xFD {
                 continue;
             }
 
+            let current = *c;
             if current == 0xFD {
                 result.push(0xFD + data[index+1]);
             } else {
