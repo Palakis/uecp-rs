@@ -73,3 +73,24 @@ fn test_message_element_encode_and_decode() {
     assert_eq!(decoded.element_code, ElementCode::RDS_PI);
     assert_eq!(decoded.data, &[0xAB, 0xCD]);
 }
+
+#[test]
+fn test_frame_encode_and_decode() {
+    let mut source = Frame::new();
+    source.sequence_counter = 24;
+    source.site_address = 341;
+    source.encoder_address = 21;
+    source.elements.push(
+        MessageElement::new(ElementCode::RDS_PI, &[0xAB, 0xCD])
+    );
+
+    let encoded = source.into_bytes().unwrap();
+    let decoded = Frame::from_bytes(&encoded).unwrap();
+
+    assert_eq!(decoded.sequence_counter, source.sequence_counter);
+    assert_eq!(decoded.site_address, source.site_address);
+    assert_eq!(decoded.encoder_address, source.encoder_address);
+    assert_eq!(decoded.elements.len(), source.elements.len());
+    assert_eq!(decoded.elements[0].element_code, source.elements[0].element_code);
+    assert_eq!(decoded.elements[0].data, source.elements[0].data);
+}

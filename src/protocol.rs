@@ -103,6 +103,43 @@ impl Frame {
         }
     }
 
+    pub fn from_bytes(bytes: &[u8]) -> Result<Frame, &'static str> {
+        let mut buffer = ByteBuffer::from_bytes(bytes);
+
+        // Skip start byte
+        buffer.read_u8();
+
+        // TODO revert byte stuffing
+
+        // Fetch data needed by the CRC computation (after STA and before CRC and STOP)
+        let crc_data = buffer.read_bytes(buffer.len() - 3);
+        let frame_crc = buffer.read_u16();
+
+        // Compute CRC
+        let computed_crc = Frame::compute_crc16_genibus(&crc_data);
+        if computed_crc != frame_crc {
+            return Err("CRC error - frame likely corrupted");
+        }
+
+        // Then come back to where we started (after the start byte)
+        buffer.set_rpos(1);
+
+        let address = buffer.read_u16();
+        let site_address: u16 = (address & 0xFFC0) >> 6 as u16;
+        let encoder_address: u8 = (address & 0x3F) as u8;
+
+        let sequence_counter = buffer.read_u8();
+        let message_length = buffer.read_u8() as usize;
+        let message = buffer.read_bytes(message_length);
+
+        Ok(Frame {
+            sequence_counter: sequence_counter,
+            site_address: site_address,
+            encoder_address: encoder_address,
+            elements: Frame::decode_message_field(&message)
+        })
+    }
+
     pub fn into_bytes(&self) -> Result<Vec<u8>, &'static str> {
         // Gather all message elements into a single byte array
         let mut message_bytes: Vec<u8> = vec![];
@@ -193,5 +230,9 @@ impl Frame {
         }
 
         result
+    }
+
+    fn decode_message_field(bytes: &[u8]) -> Vec<MessageElement> {
+        vec![]
     }
 }
