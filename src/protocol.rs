@@ -154,10 +154,12 @@ impl Frame {
         
         for c in data {
             let current = *c;
-            result.push(current);
 
             if current >= 0xFD {
+                result.push(0xFD);
                 result.push(current - 0xFD);
+            } else {
+                result.push(current);
             }
         }
 
