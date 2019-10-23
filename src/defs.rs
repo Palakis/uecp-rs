@@ -170,6 +170,38 @@ pub mod element_code_rules {
         EXCLUDE_PSN.contains(value)
     }
 
+    pub fn get_fixed_element_length(ec: ElementCode) -> usize {
+        match ec {
+            ElementCode::RDS_PI |
+            ElementCode::RDS_PIN |
+            ElementCode::RDS_SLOW_LABELING |
+            ElementCode::RDS_LINKAGE_INFO |
+            ElementCode::ODA_BURST_MODE
+            => 2,
+
+            ElementCode::ODA_SPIN_WHEEL |
+            ElementCode::ODA_DATA_ACL
+            => 4,
+            
+            ElementCode::EWS
+            => 5,
+
+            ElementCode::IH |
+            ElementCode::FREE_FORMAT
+            => 6,            
+
+            ElementCode::ODA_CONFIG |
+            ElementCode::ODA_FREE_FORMAT
+            => 7,
+
+            ElementCode::RDS_PS |
+            ElementCode::RDS_PTYN
+            => 8,
+            
+            _ => 1
+        }
+    }
+
     pub fn get_next_element_length(bytes: &[u8]) -> usize {
         let mut result: usize = 1;
         
@@ -183,9 +215,9 @@ pub mod element_code_rules {
         }
 
         if include_length_field(&element_code) {
-            result += (1 + (bytes[result] as usize));
+            result += 1 + (bytes[result] as usize);
         } else {
-            // TODO fixed sizes dictionary
+            result += get_fixed_element_length(element_code);
         }
 
         result
