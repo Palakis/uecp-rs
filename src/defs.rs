@@ -1,6 +1,4 @@
-use std::convert::Into;
-
-#[derive(Copy, Clone, PartialEq)]
+#[derive(Debug, Copy, Clone, PartialEq, FromPrimitive, ToPrimitive)]
 #[allow(non_camel_case_types)]
 pub enum ElementCode {
     RDS_PI = 0x01,
@@ -47,13 +45,7 @@ pub enum ElementCode {
     UECP_REQUEST = 0x17
 }
 
-impl Into<u8> for ElementCode {
-    fn into(self: ElementCode) -> u8 {
-        self as u8
-    }
-}
-
-#[derive(Copy, Clone, PartialEq)]
+#[derive(Debug, Copy, Clone, PartialEq, FromPrimitive, ToPrimitive)]
 pub enum PTY {
     None = 0,
     News = 1,
@@ -89,27 +81,21 @@ pub enum PTY {
     Alarm = 31
 }
 
-impl Into<u8> for PTY {
-    fn into(self: PTY) -> u8 {
-        self as u8
-    }
-}
-
-#[derive(Copy, Clone, PartialEq)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub enum ODABufferConfig {
     TransmitOnce,
     AddToCyclic,
     ClearCyclic
 }
 
-#[derive(Copy, Clone, PartialEq)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub enum ODATransmitMode {
     Normal,
     Burst,
     SpinningWheel
 }
 
-#[derive(Copy, Clone, PartialEq)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub enum ODAConfigKind {
     Data,
     ShortMessage
