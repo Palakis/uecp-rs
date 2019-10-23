@@ -257,13 +257,16 @@ impl Frame {
     fn decode_message_field(bytes: &[u8]) -> Vec<MessageElement> {
         let mut result: Vec<MessageElement> = vec![];
 
-        let mut buffer = ByteBuffer::from_bytes(&bytes);
-        while buffer.get_rpos() < buffer.len() {
-            // let element_length = buffer.read_u8() as usize;
-            // let element_bytes = buffer.read_bytes(element_length);
-            // result.push(
-            //     MessageElement::from_bytes(&element_bytes)
-            // )
+        let last_index = bytes.len();
+        let mut i: usize = 0;
+        while i < bytes.len() {
+            let readable_bytes = &bytes[i..last_index];
+            let element_length = get_next_element_length(readable_bytes);
+            result.push(
+                MessageElement::from_bytes(readable_bytes)
+            );
+
+            i += element_length;
         }
 
         result

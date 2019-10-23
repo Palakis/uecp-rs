@@ -102,6 +102,7 @@ pub enum ODAConfigKind {
 }
 
 pub mod element_code_rules {
+    use num_traits::FromPrimitive;
     use crate::defs::ElementCode;
 
     pub fn include_length_field(value: &ElementCode) -> bool {
@@ -149,5 +150,26 @@ pub mod element_code_rules {
         ];
 
         EXCLUDE_PSN.contains(value)
+    }
+
+    pub fn get_next_element_length(bytes: &[u8]) -> usize {
+        let mut result: usize = 1;
+        
+        let element_code = ElementCode::from_u8(bytes[0]).unwrap();
+        if include_dsn_psn_fields(&element_code) {
+            result += 1;
+            
+            if !exclude_psn_field(&element_code) {
+                result += 1;
+            }
+        }
+
+        if include_length_field(&element_code) {
+            result += (1 + (bytes[result] as usize));
+        } else {
+            // TODO fixed sizes dictionary
+        }
+
+        result
     }
 }
