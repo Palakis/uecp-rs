@@ -23,12 +23,12 @@ impl Default for Frame {
 }
 
 impl MessageElement {
-    pub fn new(element_code: ElementCode, data: Vec<u8>) -> MessageElement {
+    pub fn new(element_code: ElementCode, data: &[u8]) -> MessageElement {
         MessageElement {
             element_code: element_code,
             dataset_number: 0,
             program_service_number: 0,
-            data: data
+            data: data.to_vec()
         }
     }
 
