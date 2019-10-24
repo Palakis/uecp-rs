@@ -34,14 +34,12 @@ fn test_get_address_field() {
 
 #[test]
 fn test_build_pi_frame() {
-    let pi = MessageElementType::new(0x01, DSNPSNType::All, LengthType::FixedLength(2));
-
     let mut frame = Frame::new();
     frame.sequence_counter = 12;
     frame.site_address = 62;
     frame.encoder_address = 14;
     frame.elements.push(
-        MessageElement::new(pi, &[0xC2, 0x01])
+        MessageElement::new(element_types::PI, &[0xC2, 0x01])
     );
 
     let result = frame.into_bytes().unwrap();
@@ -57,14 +55,12 @@ fn test_build_pi_frame() {
 
 #[test]
 fn test_build_rt_frame() {
-    let radiotext = MessageElementType::new(0x0A, DSNPSNType::All, LengthType::VariableLength);
-
     let mut frame = Frame::new();
     frame.sequence_counter = 13;
     frame.site_address = 62;
     frame.encoder_address = 14;
     frame.elements.push(
-        MessageElement::new(radiotext, &[0x00, 0x68, 0x65, 0x6C, 0x6C, 0x6F])
+        MessageElement::new(element_types::RT, &[0x00, 0x68, 0x65, 0x6C, 0x6C, 0x6F])
     );
 
     let result = frame.into_bytes().unwrap();
@@ -80,9 +76,7 @@ fn test_build_rt_frame() {
 
 #[test]
 fn test_message_element_encode_and_decode() {
-    let pi = MessageElementType::new(0x01, DSNPSNType::All, LengthType::FixedLength(2));
-
-    let source = MessageElement::new(pi, &[0xAB, 0xCD]);
+    let source = MessageElement::new(element_types::PI, &[0xAB, 0xCD]);
     let encoded = source.into_bytes().unwrap();
     let decoded = MessageElement::from_bytes(&encoded);
     assert_eq!(decoded.element_type.code, 0x01);
@@ -91,14 +85,12 @@ fn test_message_element_encode_and_decode() {
 
 #[test]
 fn test_frame_encode_and_decode() {
-    let pi = MessageElementType::new(0x01, DSNPSNType::All, LengthType::FixedLength(2));
-
     let mut source = Frame::new();
     source.sequence_counter = 24;
     source.site_address = 341;
     source.encoder_address = 21;
     source.elements.push(
-        MessageElement::new(pi, &[0xAB, 0xCD])
+        MessageElement::new(element_types::PI, &[0xAB, 0xCD])
     );
 
     let encoded = source.into_bytes().unwrap();

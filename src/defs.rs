@@ -25,14 +25,10 @@ impl MessageElementType {
         }
     }
 
-    pub fn from_code(code: u8) -> Result<MessageElementType, &'static str> {
-        Err("not found")
-    }
-
     pub fn get_next_element_length(bytes: &[u8]) -> usize {
         let mut result: usize = 1;
         
-        let element_type = Self::from_code(bytes[0]).unwrap();
+        let element_type = element_types::from_code(bytes[0]).unwrap();
 
         result += match element_type.dsn_psn_type {
             DSNPSNType::None => 0,
@@ -46,6 +42,42 @@ impl MessageElementType {
         };
 
         result
+    }
+}
+
+pub mod element_types {
+    use crate::defs::{ LengthType, DSNPSNType, MessageElementType };
+
+    macro_rules! register_element_types {
+        (
+            $(
+                { $name:ident, $code:expr, $dsnpsn:expr, $lengthtype:expr }
+            ),*
+        ) => {
+            $(
+                pub const $name: MessageElementType = MessageElementType {
+                    code: $code,
+                    dsn_psn_type: $dsnpsn,
+                    length_type: $lengthtype
+                };
+            )*
+
+            static ELEMENT_CODE_TO_MAP: phf::Map<u8, MessageElementType> = phf_map! {
+                $($code => $name),*
+            };
+        };
+    }
+
+    register_element_types! {
+        { PI, 0x01u8, DSNPSNType::All, LengthType::FixedLength(2) },
+        { RT, 0x0Au8, DSNPSNType::All, LengthType::VariableLength }
+    }
+
+    pub fn from_code(code: u8) -> Result<MessageElementType, &'static str> {
+        match ELEMENT_CODE_TO_MAP.get(&code) {
+            Some(x) => Ok(*x),
+            None => Err("unknown element code")
+        }
     }
 }
 
@@ -148,26 +180,6 @@ pub enum PTY {
     Documentary = 29,
     AlarmTest = 30,
     Alarm = 31
-}
-
-#[derive(Debug, Copy, Clone, PartialEq)]
-pub enum ODABufferConfig {
-    TransmitOnce,
-    AddToCyclic,
-    ClearCyclic
-}
-
-#[derive(Debug, Copy, Clone, PartialEq)]
-pub enum ODATransmitMode {
-    Normal,
-    Burst,
-    SpinningWheel
-}
-
-#[derive(Debug, Copy, Clone, PartialEq)]
-pub enum ODAConfigKind {
-    Data,
-    ShortMessage
 }
 
 // pub mod element_code_rules {
@@ -275,26 +287,5 @@ pub enum ODAConfigKind {
             
 //             _ => 1
 //         }
-//     }
-
-//     pub fn get_next_element_length(bytes: &[u8]) -> usize {
-//         let mut result: usize = 1;
-        
-//         let element_code = ElementCode::from_u8(bytes[0]).unwrap();
-//         if include_dsn_psn_fields(element_code) {
-//             result += 1;
-            
-//             if !exclude_psn_field(element_code) {
-//                 result += 1;
-//             }
-//         }
-
-//         if include_length_field(element_code) {
-//             result += 1 + (bytes[result] as usize);
-//         } else {
-//             result += get_fixed_element_length(element_code);
-//         }
-
-//         result
 //     }
 // }

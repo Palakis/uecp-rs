@@ -1,4 +1,4 @@
-use crate::defs::{ LengthType, DSNPSNType, MessageElementType };
+use crate::defs::{ LengthType, DSNPSNType, MessageElementType, element_types };
 use bytebuffer::ByteBuffer;
 
 pub struct MessageElement {
@@ -34,7 +34,7 @@ impl MessageElement {
     pub fn from_bytes(bytes: &[u8]) -> MessageElement {
         let mut buffer = ByteBuffer::from_bytes(bytes);
 
-        let element_type = MessageElementType::from_code(buffer.read_u8()).unwrap();
+        let element_type = element_types::from_code(buffer.read_u8()).unwrap();
 
         let dataset_number: u8 = match element_type.dsn_psn_type {
             DSNPSNType::DSNOnly | DSNPSNType::All => buffer.read_u8(),
