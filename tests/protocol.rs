@@ -78,7 +78,7 @@ fn test_build_rt_frame() {
 fn test_message_element_encode_and_decode() {
     let source = MessageElement::new(element_types::PI, &[0xAB, 0xCD]);
     let encoded = source.into_bytes().unwrap();
-    let decoded = MessageElement::from_bytes(&encoded);
+    let decoded = MessageElement::from_bytes(&encoded).unwrap();
     assert_eq!(decoded.element_type.code, 0x01);
     assert_eq!(decoded.data, &[0xAB, 0xCD]);
 }

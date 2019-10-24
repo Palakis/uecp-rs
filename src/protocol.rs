@@ -31,10 +31,11 @@ impl MessageElement {
         }
     }
 
-    pub fn from_bytes(bytes: &[u8]) -> MessageElement {
+    pub fn from_bytes(bytes: &[u8]) -> Result<MessageElement, &'static str> {
         let mut buffer = ByteBuffer::from_bytes(bytes);
 
-        let element_type = element_types::from_code(buffer.read_u8()).unwrap();
+        let element_type = element_types::from_code(buffer.read_u8())
+            .map_or(Err("unknown element type"), |x| Ok(x))?;
 
         let dataset_number: u8 = match element_type.dsn_psn_type {
             DSNPSNType::DSNOnly | DSNPSNType::All => buffer.read_u8(),
@@ -56,12 +57,12 @@ impl MessageElement {
 
         let data: Vec<u8> = buffer.read_bytes(buffer.len() - buffer.get_rpos());
 
-        MessageElement {
+        Ok(MessageElement {
             element_type,
             dataset_number,
             program_service_number,
             data
-        }
+        })
     }
 
     pub fn into_bytes(&self) -> Result<Vec<u8>, &'static str> {
@@ -146,7 +147,7 @@ impl Frame {
             sequence_counter,
             site_address,
             encoder_address,
-            elements: Frame::decode_message_field(&message)
+            elements: Frame::decode_message_field(&message)?
         })
     }
 
@@ -154,7 +155,7 @@ impl Frame {
         // Gather all message elements into a single byte array
         let mut message_bytes: Vec<u8> = vec![];
         for element in self.elements.iter() {
-            let mut element_bytes = element.into_bytes().unwrap();
+            let mut element_bytes = element.into_bytes()?;
             message_bytes.append(&mut element_bytes);
         }
 
@@ -163,15 +164,11 @@ impl Frame {
         }
 
         // Calculate the two-bytes ADD field
-        let addr_field: u16 = Frame::get_address_field(self.site_address, self.encoder_address)
-                                    .unwrap();
-        let addr_first_byte: u8 = ((addr_field & 0xFF00) >> 8) as u8;
-        let addr_second_byte: u8 = (addr_field & 0xFF) as u8;
+        let addr_field: u16 = Frame::get_address_field(self.site_address, self.encoder_address)?;
 
         // Start building the UECP frame
         let mut frame = ByteBuffer::new();
-        frame.write_u8(addr_first_byte); // ADD
-        frame.write_u8(addr_second_byte); // ADD
+        frame.write_u16(addr_field); // ADD
         frame.write_u8(self.sequence_counter); // SEQ
         frame.write_u8(message_bytes.len() as u8); // MEL (message element length)
         frame.write_bytes(&message_bytes); // Message
@@ -261,21 +258,21 @@ impl Frame {
         result
     }
 
-    fn decode_message_field(bytes: &[u8]) -> Vec<MessageElement> {
+    fn decode_message_field(bytes: &[u8]) -> Result<Vec<MessageElement>, &'static str> {
         let mut result: Vec<MessageElement> = vec![];
 
         let last_index = bytes.len();
         let mut i: usize = 0;
         while i < bytes.len() {
             let readable_bytes = &bytes[i..last_index];
-            let element_length = MessageElementType::get_next_element_length(readable_bytes).unwrap();
+            let element_length = MessageElementType::get_next_element_length(readable_bytes)?;
             result.push(
-                MessageElement::from_bytes(readable_bytes)
+                MessageElement::from_bytes(readable_bytes)?
             );
 
             i += element_length;
         }
 
-        result
+        Ok(result)
     }
 }

@@ -25,10 +25,10 @@ impl MessageElementType {
         }
     }
 
-    pub fn get_next_element_length(bytes: &[u8]) -> Option<usize> {
+    pub fn get_next_element_length(bytes: &[u8]) -> Result<usize, &'static str> {
         let mut result: usize = 1;
         
-        let element_type = element_types::from_code(bytes[0])?;
+        let element_type = element_types::from_code(bytes[0]).map_or(Err("unknown element type"), |x| Ok(x))?;
 
         result += match element_type.dsn_psn_type {
             DSNPSNType::None => 0,
@@ -41,7 +41,7 @@ impl MessageElementType {
             LengthType::VariableLength => 1 + bytes[result] as usize
         };
 
-        Some(result)
+        Ok(result)
     }
 }
 
