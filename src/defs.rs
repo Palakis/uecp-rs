@@ -18,6 +18,21 @@ pub struct MessageElementType {
     pub length_type: LengthType
 }
 
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub enum DecodeError {
+    UnknownElementType,
+    CRCError,
+    MessageTooLarge
+}
+
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub enum EncodeError {
+    ElementTooLarge,
+    MessageTooLarge,
+    InvalidSiteAddress,
+    InvalidEncoderAddress
+}
+
 impl MessageElementType {
     pub fn new(code: u8, dsn_psn_type: DSNPSNType, length_type: LengthType) -> Self {
         Self {
@@ -25,10 +40,10 @@ impl MessageElementType {
         }
     }
 
-    pub fn get_next_element_length(bytes: &[u8]) -> Result<usize, &'static str> {
+    pub fn get_next_element_length(bytes: &[u8]) -> Option<usize> {
         let mut result: usize = 1;
         
-        let element_type = element_types::from_code(bytes[0]).map_or(Err("unknown element type"), |x| Ok(x))?;
+        let element_type = element_types::from_code(bytes[0])?;
 
         result += match element_type.dsn_psn_type {
             DSNPSNType::None => 0,
@@ -41,7 +56,7 @@ impl MessageElementType {
             LengthType::VariableLength => 1 + bytes[result] as usize
         };
 
-        Ok(result)
+        Some(result)
     }
 }
 

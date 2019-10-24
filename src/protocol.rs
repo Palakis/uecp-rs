@@ -1,4 +1,4 @@
-use crate::defs::{ LengthType, DSNPSNType, MessageElementType, element_types };
+use crate::defs::{ LengthType, DSNPSNType, MessageElementType, EncodeError, DecodeError, element_types };
 use bytebuffer::ByteBuffer;
 
 pub struct MessageElement {
@@ -31,11 +31,11 @@ impl MessageElement {
         }
     }
 
-    pub fn from_bytes(bytes: &[u8]) -> Result<MessageElement, &'static str> {
+    pub fn from_bytes(bytes: &[u8]) -> Result<MessageElement, DecodeError> {
         let mut buffer = ByteBuffer::from_bytes(bytes);
 
         let element_type = element_types::from_code(buffer.read_u8())
-            .map_or(Err("unknown element type"), |x| Ok(x))?;
+            .map_or(Err(DecodeError::UnknownElementType), |x| Ok(x))?;
 
         let dataset_number: u8 = match element_type.dsn_psn_type {
             DSNPSNType::DSNOnly | DSNPSNType::All => buffer.read_u8(),
@@ -65,9 +65,9 @@ impl MessageElement {
         })
     }
 
-    pub fn into_bytes(&self) -> Result<Vec<u8>, &'static str> {
+    pub fn into_bytes(&self) -> Result<Vec<u8>, EncodeError> {
         if self.data.len() > 254 {
-            return Err("Element data too large")
+            return Err(EncodeError::ElementTooLarge)
         }
 
         let mut buffer = ByteBuffer::new();
@@ -112,7 +112,7 @@ impl Frame {
         }
     }
 
-    pub fn from_bytes(bytes: &[u8]) -> Result<Frame, &'static str> {
+    pub fn from_bytes(bytes: &[u8]) -> Result<Frame, DecodeError> {
         // Remove byte stuffing before passing the bytes to the bytebuffer
         let last_index = bytes.len() - 1;
         let unstuffed_bytes = Frame::revert_byte_stuffing(&bytes[1..last_index]); // STA and STP are ignored
@@ -125,7 +125,7 @@ impl Frame {
         // Compute CRC
         let computed_crc = Frame::compute_crc16_genibus(&crc_data);
         if computed_crc != frame_crc {
-            return Err("CRC error - frame likely corrupted");
+            return Err(DecodeError::CRCError);
         }
 
         // Then come back to the beginning
@@ -138,7 +138,7 @@ impl Frame {
         let sequence_counter = buffer.read_u8();
         let message_length = buffer.read_u8() as usize;
         if message_length > 255 {
-            return Err("Message too large");
+            return Err(DecodeError::MessageTooLarge);
         }
 
         let message = buffer.read_bytes(message_length);
@@ -151,7 +151,7 @@ impl Frame {
         })
     }
 
-    pub fn into_bytes(&self) -> Result<Vec<u8>, &'static str> {
+    pub fn into_bytes(&self) -> Result<Vec<u8>, EncodeError> {
         // Gather all message elements into a single byte array
         let mut message_bytes: Vec<u8> = vec![];
         for element in self.elements.iter() {
@@ -160,7 +160,7 @@ impl Frame {
         }
 
         if message_bytes.len() > 255 {
-            return Err("Message too large")
+            return Err(EncodeError::MessageTooLarge);
         }
 
         // Calculate the two-bytes ADD field
@@ -187,16 +187,16 @@ impl Frame {
         final_frame.write_u8(0xFF);
 
         // And voilà
-        Ok(final_frame.to_bytes()) // TODO
+        Ok(final_frame.to_bytes())
     }
 
-    pub fn get_address_field(site_address: u16, encoder_address: u8) -> Result<u16, &'static str> {
+    pub fn get_address_field(site_address: u16, encoder_address: u8) -> Result<u16, EncodeError> {
         if site_address > 1023 {
-            return Err("Invalid site address")
+            return Err(EncodeError::InvalidSiteAddress);
         }
 
         if encoder_address > 64 {
-            return Err("Invalid encoder address")
+            return Err(EncodeError::InvalidEncoderAddress);
         }
         
         let mut address: u16;
@@ -258,14 +258,14 @@ impl Frame {
         result
     }
 
-    fn decode_message_field(bytes: &[u8]) -> Result<Vec<MessageElement>, &'static str> {
+    fn decode_message_field(bytes: &[u8]) -> Result<Vec<MessageElement>, DecodeError> {
         let mut result: Vec<MessageElement> = vec![];
 
         let last_index = bytes.len();
         let mut i: usize = 0;
         while i < bytes.len() {
             let readable_bytes = &bytes[i..last_index];
-            let element_length = MessageElementType::get_next_element_length(readable_bytes)?;
+            let element_length = MessageElementType::get_next_element_length(readable_bytes).map_or(Err(DecodeError::UnknownElementType), |x| Ok(x))?;
             result.push(
                 MessageElement::from_bytes(readable_bytes)?
             );
