@@ -124,12 +124,12 @@ pub mod element_types {
         { COMM_PORT_SPEED, 0x3Cu8, DSNPSNType::None, LengthType::FixedLength(2) },
         { COMM_PORT_TIMEOUT, 0x3Du8, DSNPSNType::None, LengthType::FixedLength(2) },
 
+        { UECP_ACK, 0x18u8, DSNPSNType::None, LengthType::FixedLength(2) },
+        { UECP_REQUEST, 0x17u8, DSNPSNType::None, LengthType::VariableLength },
+
         { SPECIFIC_COMMAND, 0x2Du8, DSNPSNType::None, LengthType::VariableLength },
         { DAB_DL_MESSAGE, 0xAAu8, DSNPSNType::None, LengthType::VariableLength },
-        { DAB_DL_COMMAND, 0x48u8, DSNPSNType::None, LengthType::VariableLength },
-
-        { UECP_ACK, 0x18u8, DSNPSNType::None, LengthType::FixedLength(2) },
-        { UECP_REQUEST, 0x17u8, DSNPSNType::None, LengthType::VariableLength }
+        { DAB_DL_COMMAND, 0x48u8, DSNPSNType::None, LengthType::VariableLength }
     }
 
     pub fn from_code(code: u8) -> Result<MessageElementType, &'static str> {
