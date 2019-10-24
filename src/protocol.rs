@@ -1,10 +1,8 @@
-use crate::defs::ElementCode;
-use crate::defs::element_code_rules::*;
+use crate::defs::{ LengthType, DSNPSNType, MessageElementType };
 use bytebuffer::ByteBuffer;
-use num_traits::FromPrimitive;
 
 pub struct MessageElement {
-    pub element_code: ElementCode,
+    pub element_type: MessageElementType,
     pub dataset_number: u8,
     pub program_service_number: u8,
     pub data: Vec<u8>
@@ -24,9 +22,9 @@ impl Default for Frame {
 }
 
 impl MessageElement {
-    pub fn new(element_code: ElementCode, data: &[u8]) -> MessageElement {
+    pub fn new(element_type: MessageElementType, data: &[u8]) -> MessageElement {
         MessageElement {
-            element_code: element_code,
+            element_type,
             dataset_number: 0,
             program_service_number: 0,
             data: data.to_vec()
@@ -36,25 +34,30 @@ impl MessageElement {
     pub fn from_bytes(bytes: &[u8]) -> MessageElement {
         let mut buffer = ByteBuffer::from_bytes(bytes);
 
-        let element_code = ElementCode::from_u8(buffer.read_u8()).unwrap();
+        let element_type = MessageElementType::from_code(buffer.read_u8()).unwrap();
 
-        let mut dataset_number: u8 = 0;
-        let mut program_service_number: u8 = 0;
-        if include_dsn_psn_fields(element_code) {
-            dataset_number = buffer.read_u8();
-            if !exclude_psn_field(element_code) {
-                program_service_number = buffer.read_u8();
-            }
-        }
+        let dataset_number: u8 = match element_type.dsn_psn_type {
+            DSNPSNType::DSNOnly | DSNPSNType::All => buffer.read_u8(),
+            _ => 0
+        };
 
-        if include_length_field(element_code) {
-            buffer.read_u8(); // Skip MEL field
+        let program_service_number: u8 = match element_type.dsn_psn_type {
+            DSNPSNType::All => buffer.read_u8(),
+            _ => 0
+        };;
+
+        match element_type.length_type {
+            LengthType::VariableLength => {
+                // Skip MEL field
+                buffer.read_u8();
+            },
+            LengthType::FixedLength(_) => {}
         }
 
         let data: Vec<u8> = buffer.read_bytes(buffer.len() - buffer.get_rpos());
 
         MessageElement {
-            element_code,
+            element_type,
             dataset_number,
             program_service_number,
             data
@@ -69,21 +72,26 @@ impl MessageElement {
         let mut buffer = ByteBuffer::new();
 
         // MEC field
-        buffer.write_u8(self.element_code as u8);
+        buffer.write_u8(self.element_type.code as u8);
 
-        if include_dsn_psn_fields(self.element_code) {
-            // DSN field
-            buffer.write_u8(self.dataset_number);
-
-            if !exclude_psn_field(self.element_code) {
-                // PSN field
+        // DSN and PSN fields
+        match self.element_type.dsn_psn_type {
+            DSNPSNType::None => {},
+            DSNPSNType::DSNOnly => {
+                buffer.write_u8(self.dataset_number);
+            },
+            DSNPSNType::All => {
+                buffer.write_u8(self.dataset_number);
                 buffer.write_u8(self.program_service_number);
             }
         }
 
         // MEL (length) field
-        if include_length_field(self.element_code) {
-            buffer.write_u8(self.data.len() as u8);
+        match self.element_type.length_type {
+            LengthType::VariableLength => {
+                buffer.write_u8(self.data.len() as u8);
+            }
+            LengthType::FixedLength(_) => {}
         }
 
         // Element data
@@ -260,7 +268,7 @@ impl Frame {
         let mut i: usize = 0;
         while i < bytes.len() {
             let readable_bytes = &bytes[i..last_index];
-            let element_length = get_next_element_length(readable_bytes);
+            let element_length = MessageElementType::get_next_element_length(readable_bytes);
             result.push(
                 MessageElement::from_bytes(readable_bytes)
             );
