@@ -15,12 +15,6 @@ pub struct Frame {
     pub elements: Vec<MessageElement>
 }
 
-impl Default for Frame {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
 impl MessageElement {
     pub fn new(element_type: MessageElementType, data: &[u8]) -> MessageElement {
         MessageElement {
@@ -115,7 +109,7 @@ impl Frame {
     pub fn from_bytes(bytes: &[u8]) -> Result<Frame, DecodeError> {
         // Remove byte stuffing before passing the bytes to the bytebuffer
         let last_index = bytes.len() - 1;
-        let unstuffed_bytes = Frame::revert_byte_stuffing(&bytes[1..last_index]); // STA and STP are ignored
+        let unstuffed_bytes = Self::revert_byte_stuffing(&bytes[1..last_index]); // STA and STP are ignored
         let mut buffer = ByteBuffer::from_bytes(&unstuffed_bytes);
 
         // Fetch data needed by the CRC computation (from the beginning to before the CRC field)
@@ -123,7 +117,7 @@ impl Frame {
         let frame_crc = buffer.read_u16();
 
         // Compute CRC
-        let computed_crc = Frame::compute_crc16_genibus(&crc_data);
+        let computed_crc = Self::compute_crc16_genibus(&crc_data);
         if computed_crc != frame_crc {
             return Err(DecodeError::CRCError);
         }
@@ -164,7 +158,7 @@ impl Frame {
         }
 
         // Calculate the two-bytes ADD field
-        let addr_field: u16 = Frame::get_address_field(self.site_address, self.encoder_address)?;
+        let addr_field: u16 = Self::get_address_field(self.site_address, self.encoder_address)?;
 
         // Start building the UECP frame
         let mut frame = ByteBuffer::new();
@@ -174,11 +168,11 @@ impl Frame {
         frame.write_bytes(&message_bytes); // Message
 
         // Calculate the CRC value mid-way
-        let crc = Frame::compute_crc16_genibus(&frame.to_bytes());
+        let crc = Self::compute_crc16_genibus(&frame.to_bytes());
         frame.write_u16(crc);
         
         // Apply stuffing
-        let stuffed_frame = Frame::apply_byte_stuffing(&frame.to_bytes());
+        let stuffed_frame = Self::apply_byte_stuffing(&frame.to_bytes());
 
         // Build the final frame
         let mut final_frame = ByteBuffer::new();
