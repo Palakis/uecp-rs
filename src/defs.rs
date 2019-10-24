@@ -1,4 +1,55 @@
 #[derive(Debug, Copy, Clone, PartialEq)]
+pub enum DecodeError {
+    UnknownElementType,
+    CRCError,
+    MessageTooLarge
+}
+
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub enum EncodeError {
+    ElementTooLarge,
+    MessageTooLarge,
+    InvalidSiteAddress,
+    InvalidEncoderAddress
+}
+
+#[derive(Debug, Copy, Clone, PartialEq, FromPrimitive, ToPrimitive)]
+pub enum PTY {
+    None = 0,
+    News = 1,
+    CurrentAffairs = 2,
+    Information = 3,
+    Sport = 4,
+    Education = 5,
+    Drama = 6,
+    Culture = 7,
+    Science = 8,
+    Varied = 9,
+    PopMusic = 10,
+    RockMusic = 11,
+    EasyListening = 12,
+    LightClassical = 13,
+    SeriousClassical = 14,
+    OtherMusic = 15,
+    Weather = 16,
+    Finance = 17,
+    Children = 18,
+    SocialAffairs = 19,
+    Religion = 20,
+    PhoneIn = 21,
+    Travel = 22,
+    Leisure = 23,
+    JazzMusic = 24,
+    CountryMusic = 25,
+    NationalMusic = 26,
+    OldiesMusic = 27,
+    FolkMusic = 28,
+    Documentary = 29,
+    AlarmTest = 30,
+    Alarm = 31
+}
+
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub enum LengthType {
     FixedLength(usize),
     VariableLength
@@ -16,21 +67,6 @@ pub struct MessageElementType {
     pub code: u8,
     pub dsn_psn_type: DSNPSNType,
     pub length_type: LengthType
-}
-
-#[derive(Debug, Copy, Clone, PartialEq)]
-pub enum DecodeError {
-    UnknownElementType,
-    CRCError,
-    MessageTooLarge
-}
-
-#[derive(Debug, Copy, Clone, PartialEq)]
-pub enum EncodeError {
-    ElementTooLarge,
-    MessageTooLarge,
-    InvalidSiteAddress,
-    InvalidEncoderAddress
 }
 
 impl MessageElementType {
@@ -150,40 +186,4 @@ pub mod element_types {
     pub fn from_code(code: u8) -> Option<MessageElementType> {
         ELEMENT_CODE_TO_MAP.get(&code).map(|x| *x)
     }
-}
-
-#[derive(Debug, Copy, Clone, PartialEq, FromPrimitive, ToPrimitive)]
-pub enum PTY {
-    None = 0,
-    News = 1,
-    CurrentAffairs = 2,
-    Information = 3,
-    Sport = 4,
-    Education = 5,
-    Drama = 6,
-    Culture = 7,
-    Science = 8,
-    Varied = 9,
-    PopMusic = 10,
-    RockMusic = 11,
-    EasyListening = 12,
-    LightClassical = 13,
-    SeriousClassical = 14,
-    OtherMusic = 15,
-    Weather = 16,
-    Finance = 17,
-    Children = 18,
-    SocialAffairs = 19,
-    Religion = 20,
-    PhoneIn = 21,
-    Travel = 22,
-    Leisure = 23,
-    JazzMusic = 24,
-    CountryMusic = 25,
-    NationalMusic = 26,
-    OldiesMusic = 27,
-    FolkMusic = 28,
-    Documentary = 29,
-    AlarmTest = 30,
-    Alarm = 31
 }
