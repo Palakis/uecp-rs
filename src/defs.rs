@@ -25,10 +25,10 @@ impl MessageElementType {
         }
     }
 
-    pub fn get_next_element_length(bytes: &[u8]) -> usize {
+    pub fn get_next_element_length(bytes: &[u8]) -> Option<usize> {
         let mut result: usize = 1;
         
-        let element_type = element_types::from_code(bytes[0]).unwrap();
+        let element_type = element_types::from_code(bytes[0])?;
 
         result += match element_type.dsn_psn_type {
             DSNPSNType::None => 0,
@@ -41,7 +41,7 @@ impl MessageElementType {
             LengthType::VariableLength => 1 + bytes[result] as usize
         };
 
-        result
+        Some(result)
     }
 }
 
@@ -132,11 +132,8 @@ pub mod element_types {
         { DAB_DL_COMMAND, 0x48u8, DSNPSNType::None, LengthType::VariableLength }
     }
 
-    pub fn from_code(code: u8) -> Result<MessageElementType, &'static str> {
-        match ELEMENT_CODE_TO_MAP.get(&code) {
-            Some(x) => Ok(*x),
-            None => Err("unknown element code")
-        }
+    pub fn from_code(code: u8) -> Option<MessageElementType> {
+        ELEMENT_CODE_TO_MAP.get(&code).map(|x| *x)
     }
 }
 

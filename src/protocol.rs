@@ -268,7 +268,7 @@ impl Frame {
         let mut i: usize = 0;
         while i < bytes.len() {
             let readable_bytes = &bytes[i..last_index];
-            let element_length = MessageElementType::get_next_element_length(readable_bytes);
+            let element_length = MessageElementType::get_next_element_length(readable_bytes).unwrap();
             result.push(
                 MessageElement::from_bytes(readable_bytes)
             );
