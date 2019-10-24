@@ -70,7 +70,66 @@ pub mod element_types {
 
     register_element_types! {
         { PI, 0x01u8, DSNPSNType::All, LengthType::FixedLength(2) },
-        { RT, 0x0Au8, DSNPSNType::All, LengthType::VariableLength }
+        { PS, 0x02u8, DSNPSNType::All, LengthType::FixedLength(8) },
+        { PIN, 0x06u8, DSNPSNType::All, LengthType::FixedLength(2) },
+        { DI, 0x04u8, DSNPSNType::All, LengthType::FixedLength(1) },
+        { TA_TP, 0x03u8, DSNPSNType::All, LengthType::FixedLength(1) },
+        { MS, 0x05u8, DSNPSNType::All, LengthType::FixedLength(1) },
+        { PTY, 0x07u8, DSNPSNType::All, LengthType::FixedLength(1) },
+        { PTYN, 0x3Eu8, DSNPSNType::All, LengthType::FixedLength(8) },
+        { RT, 0x0Au8, DSNPSNType::All, LengthType::VariableLength },
+        { AF, 0x13u8, DSNPSNType::All, LengthType::VariableLength },
+        { EON_AF, 0x14u8, DSNPSNType::All, LengthType::VariableLength },
+        { SLOW_LABELING, 0x1Au8, DSNPSNType::DSNOnly, LengthType::FixedLength(2) },
+        { LINKAGE_INFO, 0x2Eu8, DSNPSNType::All, LengthType::FixedLength(2) },
+
+        { ODA_CONFIG, 0x40u8, DSNPSNType::None, LengthType::FixedLength(7) },
+        { ODA_IDENT, 0x41u8, DSNPSNType::DSNOnly, LengthType::VariableLength },
+        { ODA_FREE_FORMAT, 0x42u8, DSNPSNType::None, LengthType::FixedLength(7) },
+        { ODA_PRIORITY, 0x43u8, DSNPSNType::None, LengthType::VariableLength },
+        { ODA_BURST_MODE, 0x44u8, DSNPSNType::None, LengthType::FixedLength(2) },
+        { ODA_SPINNING_WHEEL, 0x45u8, DSNPSNType::None, LengthType::FixedLength(4) },
+        { ODA_DATA, 0x46u8, DSNPSNType::None, LengthType::VariableLength },
+        { ODA_DATA_ACL, 0x47u8, DSNPSNType::None, LengthType::FixedLength(4) },
+
+        { TDC, 0x26u8, DSNPSNType::None, LengthType::VariableLength },
+        { EWS, 0x2Bu8, DSNPSNType::None, LengthType::FixedLength(5) },
+        { IH, 0x25u8, DSNPSNType::None, LengthType::FixedLength(6) },
+        { TMC, 0x30u8, DSNPSNType::None, LengthType::VariableLength },
+        { FREE_FORMAT, 0x24u8, DSNPSNType::None, LengthType::FixedLength(6) },
+
+        { RTC, 0x0Du8, DSNPSNType::None, LengthType::FixedLength(8) },
+        { RTC_CORRECTION, 0x09u8, DSNPSNType::None, LengthType::FixedLength(2) },
+        { CT_ON_OFF, 0x19u8, DSNPSNType::None, LengthType::FixedLength(1) },
+
+        { RDS_ON_OFF, 0x1Eu8, DSNPSNType::None, LengthType::FixedLength(1) },
+        { RDS_PHASE, 0x22u8, DSNPSNType::None, LengthType::FixedLength(2) },
+        { RDS_LEVEL, 0x0Eu8, DSNPSNType::None, LengthType::FixedLength(2) }, // todo recheck from spec
+
+        { SITE_ADDRESS, 0x23u8, DSNPSNType::None, LengthType::FixedLength(3) },
+        { ENCODER_ADDRESS, 0x27u8, DSNPSNType::None, LengthType::FixedLength(2) },
+        { MAKE_PSN_LIST, 0x28u8, DSNPSNType::DSNOnly, LengthType::VariableLength },
+        { PSN_TOGGLE, 0x0Bu8, DSNPSNType::DSNOnly, LengthType::VariableLength },
+        { EON_ELEMENTS_TOGGLE, 0x3Fu8, DSNPSNType::All, LengthType::FixedLength(1) },
+        { COMM_MODE, 0x2Cu8, DSNPSNType::None, LengthType::FixedLength(1) },
+        { TA_CONTROL, 0x2Au8, DSNPSNType::None, LengthType::FixedLength(2) },
+        { EON_TA_CONTROL, 0x15u8, DSNPSNType::None, LengthType::FixedLength(2) },
+        { REFERENCE_INPUT_SELECT, 0x1Du8, DSNPSNType::None, LengthType::FixedLength(1) },
+        { DATASET_SELECT, 0x1Cu8, DSNPSNType::None, LengthType::FixedLength(1) },
+        { GROUP_SEQUENCE, 0x16u8, DSNPSNType::DSNOnly, LengthType::VariableLength },
+        { EXTENDED_GROUP_SEQUENCE, 0x38u8, DSNPSNType::DSNOnly, LengthType::VariableLength },
+        { GROUP_VARIANT_CODE_SEQUENCE, 0x29u8, DSNPSNType::DSNOnly, LengthType::VariableLength },
+        { ENCODER_ACCESS_RIGHT, 0x3Au8, DSNPSNType::None, LengthType::FixedLength(3) },
+        { COMM_PORT_MODE, 0x3Bu8, DSNPSNType::None, LengthType::FixedLength(2) },
+        { COMM_PORT_SPEED, 0x3Cu8, DSNPSNType::None, LengthType::FixedLength(2) },
+        { COMM_PORT_TIMEOUT, 0x3Du8, DSNPSNType::None, LengthType::FixedLength(2) },
+
+        { SPECIFIC_COMMAND, 0x2Du8, DSNPSNType::None, LengthType::VariableLength },
+        { DAB_DL_MESSAGE, 0xAAu8, DSNPSNType::None, LengthType::VariableLength },
+        { DAB_DL_COMMAND, 0x48u8, DSNPSNType::None, LengthType::VariableLength },
+
+        { UECP_ACK, 0x18u8, DSNPSNType::None, LengthType::FixedLength(2) },
+        { UECP_REQUEST, 0x17u8, DSNPSNType::None, LengthType::VariableLength }
     }
 
     pub fn from_code(code: u8) -> Result<MessageElementType, &'static str> {
@@ -80,71 +139,6 @@ pub mod element_types {
         }
     }
 }
-
-// #[derive(Debug, Copy, Clone, PartialEq, FromPrimitive, ToPrimitive)]
-// pub enum ElementCode {
-//     PI = 0x01,
-//     PS = 0x02,
-//     PIN = 0x06,
-//     DecoderInformation = 0x04,
-//     TrafficProgram = 0x03,
-//     MusicSpeech = 0x05,
-//     ProgramType = 0x07,
-//     ProgramTypeName = 0x3E,
-//     Radiotext = 0x0A,
-//     AF = 0x13,
-//     EonAF = 0x14,
-//     SlowLabeling = 0x1A,
-//     LinkageInfo = 0x2E,
-
-//     OdaConfig = 0x40,
-//     OdaIdent = 0x41,
-//     OdaFreeFormat = 0x42,
-//     OdaPriority = 0x43,
-//     OdaBurstMode = 0x44,
-//     OdaSpinningWheel = 0x45,
-//     OdaData = 0x46,
-//     OdaDataACL = 0x47,
-
-//     TDC = 0x26,
-//     EWS = 0x2B,
-//     IH = 0x25,
-//     TMC = 0x30,
-//     FreeFormat = 0x24,
-
-//     RTC = 0x0D,
-//     RTCCorrection = 0x09,
-//     CTOnOff = 0x19,
-
-//     RDSOnOff = 0x1E,
-//     RDSPhase = 0x22,
-//     RDSLevel = 0x00,
-
-//     SiteAddress = 0x23,
-//     EncoderAddress = 0x27,
-//     MakePSNList = 0x28,
-//     PSNToggle = 0x0B,
-//     EonElementsToggle = 0x3F,
-//     CommunicationMode = 0x2C,
-//     TrafficAnnouncementControl = 0x2A,
-//     EonTrafficAnnouncementControl = 0x15,
-//     ReferenceInputSelect = 0x1D,
-//     DatasetSelect = 0x1C,
-//     GroupSequence = 0x16,
-//     ExtendedGroupSequence = 0x38,
-//     GroupVariantCodeSequence = 0x29,
-//     EncoderAccessRights = 0x3A,
-//     CommunicationPortMode = 0x3B,
-//     CommunicationPortSpeed = 0x3C,
-//     CommunicationPortTimeout = 0x3D,
-
-//     SpecificCommand = 0x2D,
-//     DABDynamicLabelMessage = 0xAA,
-//     DABDynamicLabelCommand = 0x48,
-
-//     UECPAcknowledgement = 0x18,
-//     UECPRequest = 0x17
-// }
 
 #[derive(Debug, Copy, Clone, PartialEq, FromPrimitive, ToPrimitive)]
 pub enum PTY {
@@ -181,111 +175,3 @@ pub enum PTY {
     AlarmTest = 30,
     Alarm = 31
 }
-
-// pub mod element_code_rules {
-//     use num_traits::FromPrimitive;
-//     use crate::defs::ElementCode;
-
-//     pub fn include_length_field(ec: ElementCode) -> bool {
-//         match ec {
-//             ElementCode::Radiotext |
-//             ElementCode::AF |
-//             ElementCode::EonAF |
-//             ElementCode::OdaIdent |
-//             ElementCode::OdaPriority |
-//             ElementCode::OdaData |
-//             ElementCode::TDC |
-//             ElementCode::TMC |
-//             ElementCode::UECPRequest |
-//             ElementCode::MakePSNList |
-//             ElementCode::PSNToggle |
-//             ElementCode::GroupSequence |
-//             ElementCode::ExtendedGroupSequence |
-//             ElementCode::GroupVariantCodeSequence |
-//             ElementCode::SpecificCommand |
-//             ElementCode::DABDynamicLabelMessage |
-//             ElementCode::DABDynamicLabelCommand
-//             => true,
-
-//             _ => false
-//         }
-//     }
-
-//     pub fn include_dsn_psn_fields(ec: ElementCode) -> bool {
-//         match ec {
-//             ElementCode::PI |
-//             ElementCode::PS |
-//             ElementCode::PIN |
-//             ElementCode::TrafficProgram |
-//             ElementCode::MusicSpeech |
-//             ElementCode::ProgramType |
-//             ElementCode::ProgramTypeName |
-//             ElementCode::Radiotext |
-//             ElementCode::AF |
-//             ElementCode::EonAF |
-//             ElementCode::SlowLabeling |
-//             ElementCode::LinkageInfo |
-//             ElementCode::OdaIdent
-//             => true,
-
-//             _ => false
-//         }
-//     }
-
-//     pub fn exclude_psn_field(ec: ElementCode) -> bool {
-//         match ec {
-//             ElementCode::SlowLabeling |
-//             ElementCode::OdaIdent
-//             => true,
-
-//             _ => false
-//         }
-//     }
-
-//     pub fn get_fixed_element_length(ec: ElementCode) -> usize {
-//         match ec {
-//             ElementCode::PI |
-//             ElementCode::PIN |
-//             ElementCode::SlowLabeling |
-//             ElementCode::LinkageInfo |
-//             ElementCode::OdaBurstMode |
-//             ElementCode::RTCCorrection |
-//             ElementCode::RDSPhase |
-//             ElementCode::RDSLevel |
-//             ElementCode::EncoderAddress |
-//             ElementCode::TrafficAnnouncementControl |
-//             ElementCode::EonTrafficAnnouncementControl |
-//             ElementCode::CommunicationPortMode |
-//             ElementCode::CommunicationPortSpeed |
-//             ElementCode::CommunicationPortTimeout |
-//             ElementCode::UECPAcknowledgement
-//             => 2,
-
-//             ElementCode::SiteAddress |
-//             ElementCode::EncoderAccessRights
-//             => 3,
-
-//             ElementCode::OdaSpinningWheel |
-//             ElementCode::OdaDataACL
-//             => 4,
-            
-//             ElementCode::EWS
-//             => 5,
-
-//             ElementCode::IH |
-//             ElementCode::FreeFormat
-//             => 6,            
-
-//             ElementCode::OdaConfig |
-//             ElementCode::OdaFreeFormat
-//             => 7,
-
-//             ElementCode::PS |
-//             ElementCode::ProgramTypeName |
-//             ElementCode::RTC
-//             => 8,
-            
-//             _ => 1
-//         }
-//     }
-// }
