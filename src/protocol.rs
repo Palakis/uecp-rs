@@ -1,5 +1,8 @@
+use std::sync::atomic::{ AtomicU8, Ordering };
 use bytebuffer::ByteBuffer;
 use crate::defs::{ LengthType, DSNPSNType, MessageElementType, EncodeError, DecodeError, element_types };
+
+static GLOBAL_SEQUENCE_NUMBER: AtomicU8 = AtomicU8::new(1);
 
 pub struct MessageElement {
     pub element_type: MessageElementType,
@@ -99,7 +102,7 @@ impl MessageElement {
 impl Frame {
     pub fn new() -> Self {
         Self {
-            sequence_counter: 1,
+            sequence_counter: GLOBAL_SEQUENCE_NUMBER.fetch_add(1, Ordering::SeqCst),
             site_address: 0,
             encoder_address: 0,
             elements: vec![]
@@ -107,12 +110,11 @@ impl Frame {
     }
 
     pub fn response_for(other: &Self) -> Self {
-        Self {
-            sequence_counter: other.sequence_counter + 1,
-            site_address: other.site_address,
-            encoder_address: other.encoder_address,
-            elements: vec![]
-        }
+        let mut frame = Frame::new();
+        frame.site_address = other.site_address;
+        frame.encoder_address = other.encoder_address;
+
+        frame
     }
 
     pub fn from_bytes(bytes: &[u8]) -> Result<Frame, DecodeError> {
