@@ -13,6 +13,25 @@ pub enum EncodeError {
     InvalidEncoderAddress
 }
 
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub enum ResponseCode {
+    Ok = 0,
+    CRCError = 1,
+    NotReceived = 2,
+    UnknownMessage = 3,
+    DSNError = 4,
+    PSNError = 5,
+    ParameterOutOfRange = 6,
+    ElementLengthError = 7,
+    FieldLengthError = 8,
+    NotAcceptable = 9,
+    EndMessageMissing = 10,
+    BufferOverflow = 11,
+    BadStuffing = 12,
+    UnexpectedEndOfMessage = 13,
+    NotInterpreted = 14
+}
+
 #[derive(Debug, Copy, Clone, PartialEq, FromPrimitive, ToPrimitive)]
 pub enum PTY {
     None = 0,

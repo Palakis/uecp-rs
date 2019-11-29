@@ -1,5 +1,5 @@
-use crate::defs::{ LengthType, DSNPSNType, MessageElementType, EncodeError, DecodeError, element_types };
 use bytebuffer::ByteBuffer;
+use crate::defs::{ LengthType, DSNPSNType, MessageElementType, EncodeError, DecodeError, element_types };
 
 pub struct MessageElement {
     pub element_type: MessageElementType,
@@ -97,11 +97,20 @@ impl MessageElement {
 }
 
 impl Frame {
-    pub fn new() -> Frame {
-        Frame {
+    pub fn new() -> Self {
+        Self {
             sequence_counter: 1,
             site_address: 0,
             encoder_address: 0,
+            elements: vec![]
+        }
+    }
+
+    pub fn response_for(other: &Self) -> Self {
+        Self {
+            sequence_counter: other.sequence_counter + 1,
+            site_address: other.site_address,
+            encoder_address: other.encoder_address,
             elements: vec![]
         }
     }

@@ -7,3 +7,4 @@ extern crate phf;
 pub mod defs;
 pub mod ebulatin;
 pub mod protocol;
+pub mod logic;
