@@ -39,7 +39,7 @@ impl MessageElement {
         let program_service_number: u8 = match element_type.dsn_psn_type {
             DSNPSNType::All => buffer.read_u8(),
             _ => 0
-        };;
+        };
 
         match element_type.length_type {
             LengthType::VariableLength => {
