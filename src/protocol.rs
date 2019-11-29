@@ -109,14 +109,6 @@ impl Frame {
         }
     }
 
-    pub fn response_for(other: &Self) -> Self {
-        let mut frame = Frame::new();
-        frame.site_address = other.site_address;
-        frame.encoder_address = other.encoder_address;
-
-        frame
-    }
-
     pub fn from_bytes(bytes: &[u8]) -> Result<Frame, DecodeError> {
         // Remove byte stuffing before passing the bytes to the bytebuffer
         let last_index = bytes.len() - 1;
@@ -193,6 +185,11 @@ impl Frame {
 
         // And voilà
         Ok(final_frame.to_bytes())
+    }
+
+    pub fn set_addresses(&mut self, site_address: u16, encoder_address: u8) {
+        self.site_address = site_address;
+        self.encoder_address = encoder_address;
     }
 
     pub fn get_address_field(site_address: u16, encoder_address: u8) -> Result<u16, EncodeError> {
