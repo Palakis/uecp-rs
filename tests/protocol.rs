@@ -34,13 +34,14 @@ fn test_get_address_field() {
 
 #[test]
 fn test_build_pi_frame() {
-    let mut frame = Frame::new();
-    frame.sequence_counter = 12;
-    frame.site_address = 62;
-    frame.encoder_address = 14;
-    frame.elements.push(
-        MessageElement::new(element_types::PI, &[0xC2, 0x01])
-    );
+    let frame = Frame {
+        sequence_counter: 12,
+        site_address: 62,
+        encoder_address: 14,
+        elements: vec![
+            MessageElement::new(element_types::PI, &[0xC2, 0x01])
+        ]
+    };
 
     let result = frame.into_bytes().unwrap();
     assert_eq!(result, vec![
@@ -55,13 +56,14 @@ fn test_build_pi_frame() {
 
 #[test]
 fn test_build_rt_frame() {
-    let mut frame = Frame::new();
-    frame.sequence_counter = 13;
-    frame.site_address = 62;
-    frame.encoder_address = 14;
-    frame.elements.push(
-        MessageElement::new(element_types::RT, &[0x00, 0x68, 0x65, 0x6C, 0x6C, 0x6F])
-    );
+    let frame = Frame {
+        sequence_counter: 13,
+        site_address: 62,
+        encoder_address: 14,
+        elements: vec![
+            MessageElement::new(element_types::RT, &[0x00, 0x68, 0x65, 0x6C, 0x6C, 0x6F])
+        ]
+    };
 
     let result = frame.into_bytes().unwrap();
     assert_eq!(result, vec![
@@ -85,13 +87,14 @@ fn test_message_element_encode_and_decode() {
 
 #[test]
 fn test_frame_encode_and_decode_fixed_length_element() {
-    let mut source = Frame::new();
-    source.sequence_counter = 24;
-    source.site_address = 341;
-    source.encoder_address = 21;
-    source.elements.push(
-        MessageElement::new(element_types::PI, &[0xAB, 0xCD])
-    );
+    let source = Frame {
+        sequence_counter: 24,
+        site_address: 341,
+        encoder_address: 21,
+        elements: vec![
+            MessageElement::new(element_types::PI, &[0xAB, 0xCD])
+        ]
+    };
 
     let encoded = source.into_bytes().unwrap();
     let decoded = Frame::from_bytes(&encoded).unwrap();
@@ -108,13 +111,14 @@ fn test_frame_encode_and_decode_fixed_length_element() {
 fn test_frame_encode_and_decode_variable_length_element() {
     let radiotext_bytes: &[u8] = "HELLO".as_bytes();
 
-    let mut source = Frame::new();
-    source.sequence_counter = 24;
-    source.site_address = 341;
-    source.encoder_address = 21;
-    source.elements.push(
-        MessageElement::new(element_types::RT, radiotext_bytes)
-    );
+    let source = Frame {
+        sequence_counter: 24,
+        site_address: 341,
+        encoder_address: 21,
+        elements: vec![
+            MessageElement::new(element_types::RT, radiotext_bytes)
+        ]
+    };
 
     let encoded = source.into_bytes().unwrap();
     let decoded = Frame::from_bytes(&encoded).unwrap();
