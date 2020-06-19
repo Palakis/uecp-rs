@@ -1,5 +1,4 @@
 use phf::phf_map;
-use bytebuffer::*;
 use std::str;
 
 static E1: phf::Map<char, u8> = phf_map! { 
@@ -32,14 +31,11 @@ static E1: phf::Map<char, u8> = phf_map! {
     'ã' => 0xF0, 'å' => 0xF1, 'æ' => 0xF2, 'œ' => 0xF3, 'ŵ' => 0xF4, 'ý' => 0xF5, 'õ' => 0xF6,  'ø' => 0xF7, 'ꝧ' => 0xF8, 'ŋ' => 0xF9, 'ŕ' => 0xFA, 'ć' => 0xFB,  'ś' => 0xFC, 'ź' => 0xFD, 'ŧ' => 0xFE
 };
 
-pub fn to_e1(source: &str) -> ByteBuffer {
-    let mut buffer = ByteBuffer::new();
-    for c in source.chars() {
-        let e1_byte: u8 = match E1.get(&c) {
+pub fn to_e1(source: &str) -> Vec<u8> {
+    source.chars().map(|c| {
+        match E1.get(&c) {
             Some(x) => *x,
             None => c as u8
-        };
-        buffer.write_u8(e1_byte);
-    }
-    buffer
+        }
+    }).collect()
 }
