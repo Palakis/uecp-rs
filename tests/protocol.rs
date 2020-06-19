@@ -84,7 +84,7 @@ fn test_message_element_encode_and_decode() {
 }
 
 #[test]
-fn test_frame_encode_and_decode() {
+fn test_frame_encode_and_decode_fixed_length_element() {
     let mut source = Frame::new();
     source.sequence_counter = 24;
     source.site_address = 341;
@@ -102,4 +102,28 @@ fn test_frame_encode_and_decode() {
     assert_eq!(decoded.elements.len(), source.elements.len());
     assert_eq!(decoded.elements[0].element_type.code, source.elements[0].element_type.code);
     assert_eq!(decoded.elements[0].data, source.elements[0].data);
+}
+
+#[test]
+fn test_frame_encode_and_decode_variable_length_element() {
+    let radiotext_bytes: &[u8] = "HELLO".as_bytes();
+
+    let mut source = Frame::new();
+    source.sequence_counter = 24;
+    source.site_address = 341;
+    source.encoder_address = 21;
+    source.elements.push(
+        MessageElement::new(element_types::RT, radiotext_bytes)
+    );
+
+    let encoded = source.into_bytes().unwrap();
+    let decoded = Frame::from_bytes(&encoded).unwrap();
+
+    assert_eq!(decoded.sequence_counter, source.sequence_counter);
+    assert_eq!(decoded.site_address, source.site_address);
+    assert_eq!(decoded.encoder_address, source.encoder_address);
+    assert_eq!(decoded.elements.len(), source.elements.len());
+    assert_eq!(decoded.elements[0].element_type.code, source.elements[0].element_type.code);
+    assert_eq!(decoded.elements[0].data, source.elements[0].data);
+    assert_eq!(decoded.elements[0].data.len(), 5)
 }

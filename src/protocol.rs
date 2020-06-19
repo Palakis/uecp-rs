@@ -31,8 +31,9 @@ impl MessageElement {
     pub fn from_bytes(bytes: &[u8]) -> Result<MessageElement, DecodeError> {
         let mut buffer = ByteBuffer::from_bytes(bytes);
 
-        let element_type = element_types::from_code(buffer.read_u8())
-            .map_or(Err(DecodeError::UnknownElementType), |x| Ok(x))?;
+        let first_byte = buffer.read_u8();
+        let element_type = element_types::from_code(&first_byte)
+            .map_or(Err(DecodeError::UnknownElementType(first_byte)), |x| Ok(x))?;
 
         let dataset_number: u8 = match element_type.dsn_psn_type {
             DSNPSNType::DSNOnly | DSNPSNType::All => buffer.read_u8(),
@@ -266,8 +267,10 @@ impl Frame {
         let last_index = bytes.len();
         let mut i: usize = 0;
         while i < bytes.len() {
-            let readable_bytes = &bytes[i..last_index];
-            let element_length = MessageElementType::get_next_element_length(readable_bytes).map_or(Err(DecodeError::UnknownElementType), |x| Ok(x))?;
+            let readable_bytes = bytes.get(i..last_index)
+                .ok_or_else(|| DecodeError::MessageTooShort)?;
+
+            let element_length = MessageElementType::get_next_element_length(readable_bytes)?;
             result.push(
                 MessageElement::from_bytes(readable_bytes)?
             );

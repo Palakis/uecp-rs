@@ -1,8 +1,9 @@
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum DecodeError {
-    UnknownElementType,
+    MessageTooShort,
     CRCError,
-    MessageTooLarge
+    UnknownElementType(u8),
+    MessageTooLarge,
 }
 
 #[derive(Debug, Copy, Clone, PartialEq)]
@@ -109,23 +110,35 @@ impl MessageElementType {
         }
     }
 
-    pub fn get_next_element_length(bytes: &[u8]) -> Option<usize> {
-        let mut result: usize = 1;
-        
-        let element_type = element_types::from_code(bytes[0])?;
+    pub fn get_next_element_length(bytes: &[u8]) -> Result<usize, DecodeError> {
+        println!("gnel bytes: {:?}", bytes);
+        let first_byte: &u8 = bytes.first().ok_or_else(|| DecodeError::MessageTooShort)?;
+        let element_type = element_types::from_code(first_byte)
+            .ok_or_else(|| DecodeError::UnknownElementType(*first_byte))?;
 
-        result += match element_type.dsn_psn_type {
+        // element layout:
+        // - element type (one byte)
+        // - dsn (one byte, optional)
+        // - psn (one byte, optional)
+        // - data length (one byte, only for variable-length element types)
+        // - ...data
+
+        // base_offset = element type + dsn? + psn?
+        let base_offset = 1 + match element_type.dsn_psn_type {
             DSNPSNType::None => 0,
             DSNPSNType::DSNOnly => 1,
             DSNPSNType::All => 2
         };
 
-        result += match element_type.length_type {
-            LengthType::FixedLength(x) => x,
-            LengthType::VariableLength => (1 + bytes[result]) as usize
-        };
-
-        Some(result)
+        Ok(match element_type.length_type {
+            // element type, dsn?, psn?, fixed-length data
+            LengthType::FixedLength(x) => base_offset + x,
+            // element type, dsn?, psn?, data length, variable-length data
+            LengthType::VariableLength => {
+                let variable_length: &u8 = bytes.get(base_offset).ok_or_else(|| DecodeError::MessageTooShort)?;
+                base_offset + 1 + ((*variable_length) as usize)
+            }
+        })
     }
 }
 
@@ -216,7 +229,7 @@ pub mod element_types {
         { DAB_DL_COMMAND, 0x48u8, DSNPSNType::None, LengthType::VariableLength }
     }
 
-    pub fn from_code(code: u8) -> Option<MessageElementType> {
-        ELEMENT_CODE_TO_MAP.get(&code).map(|x| *x)
+    pub fn from_code(code: &u8) -> Option<MessageElementType> {
+        ELEMENT_CODE_TO_MAP.get(code).map(|x| *x)
     }
 }
