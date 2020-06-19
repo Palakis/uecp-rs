@@ -13,6 +13,7 @@ pub enum EncodeError {
     InvalidEncoderAddress
 }
 
+#[repr(u8)]
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum ResponseCode {
     Ok = 0,
@@ -32,6 +33,13 @@ pub enum ResponseCode {
     NotInterpreted = 14
 }
 
+impl ResponseCode {
+    pub fn as_u8(self) -> u8 {
+        self as u8
+    }
+}
+
+#[repr(u8)]
 #[derive(Debug, Copy, Clone, PartialEq, FromPrimitive, ToPrimitive)]
 pub enum PTY {
     None = 0,
@@ -66,6 +74,12 @@ pub enum PTY {
     Documentary = 29,
     AlarmTest = 30,
     Alarm = 31
+}
+
+impl PTY {
+    pub fn as_u8(self) -> u8 {
+        self as u8
+    }
 }
 
 #[derive(Debug, Copy, Clone, PartialEq)]

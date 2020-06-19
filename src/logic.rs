@@ -7,9 +7,9 @@ pub fn process_incoming_frame<F>(request: &Frame, cb: F) -> Option<Frame>
 {
     let response_code = cb(request);
 
-    let mut ack_data: Vec<u8> = vec![response_code as u8];
+    let mut ack_data: Vec<u8> = vec![response_code.as_u8()];
     if response_code != ResponseCode::Ok {
-        ack_data.push(request.sequence_counter as u8);
+        ack_data.push(request.sequence_counter);
     }
 
     let mut response = create_command_frame(element_types::UECP_ACK, &ack_data);

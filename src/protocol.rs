@@ -70,7 +70,7 @@ impl MessageElement {
         let mut buffer = ByteBuffer::new();
 
         // MEC field
-        buffer.write_u8(self.element_type.code as u8);
+        buffer.write_u8(self.element_type.code);
 
         // DSN and PSN fields
         match self.element_type.dsn_psn_type {
