@@ -122,7 +122,7 @@ impl MessageElementType {
 
         result += match element_type.length_type {
             LengthType::FixedLength(x) => x,
-            LengthType::VariableLength => 1 + bytes[result] as usize
+            LengthType::VariableLength => (1 + bytes[result]) as usize
         };
 
         Some(result)

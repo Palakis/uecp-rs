@@ -221,7 +221,7 @@ impl Frame {
             crc ^= ((crc & 0xFF) << 4) << 1;
         }
 
-        (crc ^ 0xFFFF)
+        crc ^ 0xFFFF
     }
 
     pub fn apply_byte_stuffing(data: &[u8]) -> Vec<u8> {
